@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beni Seviyor musun?</title>
+    <!-- Canvas Confetti Kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #feada6 100%);
+            overflow: hidden;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 90vw;
+            width: 450px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .heart-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        h1 {
+            color: #d63384;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            min-height: 100px;
+        }
+
+        button {
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #btn-evet {
+            background-color: #28a745;
+            color: white;
+            z-index: 10;
+        }
+
+        #btn-evet:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        #btn-hayir {
+            background-color: #dc3545;
+            color: white;
+            z-index: 5;
+        }
+
+        #btn-hayir:hover {
+            background-color: #c82333;
+        }
+
+        .result-message {
+            display: none;
+            font-size: 2.2rem;
+            color: #d63384;
+            font-weight: bold;
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="heart-icon" id="icon">❤️</div>
+        <h1 id="question">Beni seviyor musun?</h1>
+        
+        <div class="btn-container" id="button-group">
+            <button id="btn-evet">Evet</button>
+            <button id="btn-hayir">Hayır</button>
+        </div>
+
+        <div class="result-message" id="result">
+            Ben de seni seviyorum! ❤️✨
+        </div>
+    </div>
+
+    <script>
+        const btnEvet = document.getElementById('btn-evet');
+        const btnHayir = document.getElementById('btn-hayir');
+        const question = document.getElementById('question');
+        const buttonGroup = document.getElementById('button-group');
+        const result = document.getElementById('result');
+        const icon = document.getElementById('icon');
+
+        // Buton Ölçeklendirme Değişkenleri
+        let evetScale = 1.0;
+        let hayirScale = 1.0;
+        let evetPaddingY = 14;
+        let evetPaddingX = 28;
+        let evetFontSize = 1.2;
+
+        let hayirPaddingY = 14;
+        let hayirPaddingX = 28;
+        let hayirFontSize = 1.2;
+
+        // "Hayır" butonuna her tıklandığında çalışacak dinamik ölçekleme
+        btnHayir.addEventListener('click', () => {
+            // Evet butonunu büyüt
+            evetFontSize += 0.35;
+            evetPaddingY += 6;
+            evetPaddingX += 12;
+            btnEvet.style.fontSize = `${evetFontSize}rem`;
+            btnEvet.style.padding = `${evetPaddingY}px ${evetPaddingX}px`;
+
+            // Hayır butonunu küçült
+            if (hayirFontSize > 0.3) {
+                hayirFontSize -= 0.15;
+                hayirPaddingY = Math.max(2, hayirPaddingY - 2);
+                hayirPaddingX = Math.max(5, hayirPaddingX - 4);
+                btnHayir.style.fontSize = `${hayirFontSize}rem`;
+                btnHayir.style.padding = `${hayirPaddingY}px ${hayirPaddingX}px`;
+            } else {
+                // Hayır çok küçülürse gizle
+                btnHayir.style.display = 'none';
+            }
+        });
+
+        // "Evet" butonuna tıklandığında tetiklenecek efektler
+        btnEvet.addEventListener('click', () => {
+            // Arayüz elemanlarını güncelle
+            buttonGroup.style.display = 'none';
+            question.style.display = 'none';
+            result.style.display = 'block';
+            icon.innerHTML = '💖';
+
+            // Şölen Konfeti Efekti
+            triggerConfetti();
+        });
+
+        function triggerConfetti() {
+            // Sürekli ve şık konfeti patlaması
+            var duration = 4 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                
+                // İki taraftan konfeti atışı
+                confetti(Object.assign({}, defaults, { 
+                    particleCount, 
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                    colors: ['#ff0000', '#ff69b4', '#ffffff', '#ff1493', '#ffd700']
+                }));
+                confetti(Object.assign({}, defaults, { 
+                    particleCount, 
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                    colors: ['#ff0000', '#ff69b4', '#ffffff', '#ff1493', '#ffd700']
+                }));
+            }, 250);
+        }
+    </script>
+</body>
+</html>
